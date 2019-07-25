@@ -2,20 +2,16 @@ package com.orange.note.h5cache
 
 import android.content.Context
 import android.text.TextUtils
-import android.util.Log
-import com.orange.note.h5cache.entity.H5CacheItem
 import com.orange.note.h5cache.entity.H5CacheMapping
 import com.orange.note.h5cache.entity.H5CacheResponse
 import com.orange.note.h5cache.http.H5CacheTask
 import com.orange.note.h5cache.util.*
-import org.json.JSONObject
 import rx.Observable
 import rx.Subscriber
-import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import java.io.File
-import java.lang.IllegalStateException
 import java.net.URI
+import java.net.URLDecoder
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
@@ -98,50 +94,55 @@ object H5CacheManager {
             }
             .flatMap {
                 return@flatMap Observable.from(it.itemList)
-                    .filter { item ->
-                        val file = File("$cachePathDir${item.path}?v=${item.md5}")
-                        if (file.exists() && file.isFile && MD5Util.md5(file).toLowerCase() == item.md5?.toLowerCase()) {
-                            return@filter false
-                        }
-                        if (TextUtils.isEmpty(item.url)) {
-                            return@filter false
-                        }
-                        return@filter true
-                    }
                     .flatMap inner@{ item ->
+                        val file = File("$cachePathDir${item.path}?v=${item.md5}")
+                        // 如果文件存在并且md5一致，就不用重新下载了
+                        if (file.exists() && file.isFile && MD5Util.md5(file).toLowerCase() == item.md5?.toLowerCase()) {
+                            return@inner Observable.just(true)
+                        }
                         return@inner H5CacheTask.download(item.url!!)
                             .map { body ->
                                 val uri = URI(item.url!!)
                                 val path = item.url!!.replace("${uri.scheme}://${uri.host}", "")
                                 return@map FileUtil.saveFile(body.byteStream(), cachePathDir + path)
                             }
-                            .filter { file ->
-                                return@filter item.md5?.toLowerCase() == MD5Util.md5(file).toLowerCase()
+                            .map { newFile ->
+                                if (item.md5?.toLowerCase() == MD5Util.md5(newFile).toLowerCase()) {
+                                    // 更新内存 cacheMapping
+                                    cacheMapping[item.path] = item.md5
+                                    return@map true
+                                } else {
+                                    newFile.delete()
+                                    return@map false
+                                }
                             }
-                            .doOnNext {
-                                // 更新内存 cacheMapping
-                                cacheMapping[item.path] = item.md5
-                            }.map {
-                                return@map item
+                            .onErrorReturn {
+                                return@onErrorReturn false
                             }
                     }
                     .toList()
-                    .map { _ ->
-                        return@map it
+                    .flatMap inner@{ list ->
+                        list.forEach { success ->
+                            // if someone download failed, return error to subscriber
+                            if (!success) {
+                                return@inner Observable.error<H5CacheResponse>(IllegalStateException("something wrong"))
+                            }
+                        }
+                        return@inner Observable.just(it)
                     }
             }
             .subscribe(object : Subscriber<H5CacheResponse>() {
 
                 override fun onNext(t: H5CacheResponse?) {
                     // update h5Cache.json
-                    if (version != t?.latestVersion) {
-                        version = t?.latestVersion
+                    if (t?.needUpdate == true) {
+                        version = t.latestVersion
                         val h5CacheMapping = H5CacheMapping()
-                        h5CacheMapping.version = t?.latestVersion
-                        h5CacheMapping.resourceList = t?.itemList
+                        h5CacheMapping.version = t.latestVersion
+                        h5CacheMapping.resourceList = t.itemList
                         val json = GsonUtil.toJson(h5CacheMapping)
                         val file = File(cachePathDir + File.separator + H5_CACHE_JSON)
-                        file.writeText(json)
+                        file.writeText(URLDecoder.decode(json, "UTF-8"))
                     }
                 }
 
