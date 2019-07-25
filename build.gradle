@@ -1,0 +1,76 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    ext.kotlin_version = '1.3.41'
+
+    def mvnUsername = ""
+    def mvnPassword = ""
+
+    if (project.rootProject.file('local.properties').exists()) {
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file('local.properties').newDataInputStream())
+        mvnUsername = properties.getProperty("maven.username")
+        mvnPassword = properties.getProperty("maven.password")
+    }
+
+    repositories {
+        google()
+        jcenter()
+        maven {
+            url "http://maven.91chengguo.com/repository/maven-releases/"
+            credentials {
+                username mvnUsername
+                password mvnPassword
+            }
+        }
+        maven {
+            url "http://maven.91chengguo.com/repository/maven-snapshots/"
+            credentials {
+                username mvnUsername
+                password mvnPassword
+            }
+        }
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.4.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+allprojects {
+
+    def mvnUsername = ""
+    def mvnPassword = ""
+
+    if (project.rootProject.file('local.properties').exists()) {
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file('local.properties').newDataInputStream())
+        mvnUsername = properties.getProperty("maven.username")
+        mvnPassword = properties.getProperty("maven.password")
+    }
+
+    repositories {
+        google()
+        jcenter()
+        maven {
+            url "http://maven.91chengguo.com/repository/maven-releases/"
+            credentials {
+                username mvnUsername
+                password mvnPassword
+            }
+        }
+        maven {
+            url "http://maven.91chengguo.com/repository/maven-snapshots/"
+            credentials {
+                username mvnUsername
+                password mvnPassword
+            }
+        }
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
