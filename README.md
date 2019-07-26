@@ -21,10 +21,10 @@ https://oa.91chengguo.com/oa/backDoor.do （开发工具 -> H5静态资源缓存
 
 使用本项目需要额外添加以下依赖：
 
-* RxJava
-* GSON
-* Retrofit
-* Net
+* [RxJava](https://github.com/ReactiveX/RxJava)
+* [Retrofit](https://github.com/square/retrofit)
+* [gson](https://github.com/google/gson)
+* [Net](https://gitlab.91chengguo.com/Orange-Android/Net)
    
    
 Usage
