@@ -13,19 +13,29 @@ import java.net.URI
  * @author maomao
  * @date 2019-07-11
  */
-class H5CacheInterceptor {
+object H5CacheInterceptor {
 
-    companion object {
-        private const val CODE_OK = 200
-        private const val MESSAGE_OK = "OK"
-    }
+    private const val CODE_OK = 200
+    private const val MESSAGE_OK = "OK"
+    private val hostList = mutableListOf<String>()
 
+    fun clearHostList() = hostList.clear()
 
+    fun addHostList(host: String) = hostList.add(host)
+
+    fun removeHostList(host: String) = hostList.remove(host)
+
+    /**
+     * please called in WebViewClient shouldInterceptRequest
+     */
     fun shouldInterceptRequest(url: String?): WebResourceResponse? {
         if (TextUtils.isEmpty(url)) {
             return null
         }
         val uri = URI(url!!)
+        if (!hostList.contains(uri.host)) {
+            return null
+        }
         var path = url.replace("${uri.scheme}://${uri.host}", "")
         if (!H5CacheManager.cacheMapping.containsKey(path)) {
             return null
@@ -40,7 +50,7 @@ class H5CacheInterceptor {
             return null
         }
         val fileMd5 = MD5Util.md5(file) ?: ""
-        if (fileMd5.toLowerCase() == md5.toLowerCase()) {
+        if (fileMd5.toLowerCase() != md5.toLowerCase()) {
             return null
         }
 
