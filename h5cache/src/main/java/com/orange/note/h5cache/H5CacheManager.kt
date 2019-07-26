@@ -148,11 +148,13 @@ object H5CacheManager {
 
                 override fun onCompleted() {
                     isRunning = false
+                    unsubscribe()
                 }
 
                 override fun onError(e: Throwable?) {
                     e?.printStackTrace()
                     isRunning = false
+                    unsubscribe()
                 }
 
             })
