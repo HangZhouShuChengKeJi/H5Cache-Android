@@ -15,9 +15,7 @@ H5Cache
 
 在 assets 中需要提前预置 H5 mapping 文件，以 json 格式为准，命名为 h5Cache.json，详见demo
 
-h5Cache.zip 、h5Cache.json 下载地址：
-
-https://oa.91chengguo.com/oa/backDoor.do （开发工具 -> H5静态资源缓存）
+h5Cache.zip 、h5Cache.json
 
 使用本项目需要额外添加以下依赖：
 
@@ -106,3 +104,8 @@ Advanced Usage
 Changelog
 ===
 * v1.0.0 init commit
+
+License
+===
+[Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html) Copyright (C) [杭州数橙科技有限公司](https://github.com/HangZhouShuChengKeJi)
+
