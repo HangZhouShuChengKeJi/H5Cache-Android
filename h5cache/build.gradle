@@ -76,7 +76,7 @@ uploadArchives {
                 authentication(userName: username, password: password)
             }
             pom.packaging = 'aar'
-            pom.version = "1.0.0"
+            pom.version = "1.0.1"
             pom.groupId = 'com.orange.note'
             pom.artifactId = "h5cache"
         }
