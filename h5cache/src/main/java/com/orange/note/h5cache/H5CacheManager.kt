@@ -141,9 +141,7 @@ object H5CacheManager {
                     // update h5Cache.json
                     if (t?.needUpdate == true) {
                         version = t.latestVersion
-                        val h5CacheMapping = H5CacheMapping()
-                        h5CacheMapping.version = t.latestVersion
-                        h5CacheMapping.resourceList = t.itemList
+                        val h5CacheMapping = H5CacheMapping(t.latestVersion, t.itemList)
                         val json = GsonUtil.toJson(h5CacheMapping)
                         val file = File(cachePathDir + File.separator + H5_CACHE_JSON)
                         file.writeText(URLDecoder.decode(json, "UTF-8"))

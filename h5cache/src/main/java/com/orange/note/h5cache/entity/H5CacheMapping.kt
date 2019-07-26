@@ -8,14 +8,13 @@ import android.support.annotation.Keep
  * @date 2019-07-12
  */
 @Keep
-class H5CacheMapping {
+data class H5CacheMapping(
     /**
      * 本地版本号
      */
-    var version: String? = null
+    val version: String?,
     /**
      * 本地的所有的静态资源文件 H5 cache 集合
      */
-    var resourceList: List<H5CacheItem>? = null
-
-}
+    var resourceList: List<H5CacheItem>?
+)
