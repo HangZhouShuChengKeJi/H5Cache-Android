@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public class MimeTypeMapUtil {
 
-    private static Map<String, String> mineMap = new HashMap<String, String>() {
+    private static Map<String, String> internalMimeMap = new HashMap<String, String>() {
         {
             put("js", "application/javascript");
         }
@@ -53,8 +53,8 @@ public class MimeTypeMapUtil {
     }
 
     private static String getMimeTypeFromExtension(String extension) {
-        if (mineMap.containsKey(extension)) {
-            return mineMap.get(extension);
+        if (internalMimeMap.containsKey(extension)) {
+            return internalMimeMap.get(extension);
         }
         return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
     }
