@@ -35,6 +35,10 @@ object H5CacheManager {
      */
     private const val H5_CACHE_JSON = "h5Cache.json"
     /**
+     * app 的版本号默认 value
+     */
+    private const val DEFAULT_VERSION_CODE = -1
+    /**
      * 是否在执行更新
      */
     @Volatile
@@ -62,10 +66,10 @@ object H5CacheManager {
         // 路径 /data/data/com.orange.note/files/h5cache
         cachePathDir = "${context.filesDir}/h5cache"
 
-        val versionCode = SharedPreferenceUtil.getInt(context, SP_H5_CACHE_VERSION_CODE, -1)
+        val versionCode = SharedPreferenceUtil.getInt(context, SP_H5_CACHE_VERSION_CODE, DEFAULT_VERSION_CODE)
         val currentVersionCode = AppUtil.getVersionCode(context)
         // 第一次打开或者版本升级/降级
-        if (versionCode == -1 || currentVersionCode != versionCode) {
+        if (versionCode == DEFAULT_VERSION_CODE || currentVersionCode != versionCode) {
             unZipFromAssets(context)
         }
         readMappingFile(context, currentVersionCode)
@@ -185,7 +189,6 @@ object H5CacheManager {
                 ZipUtils.upZipFile(it, cachePathDir)
                 return@map it
             }
-            .subscribeOn(Schedulers.io())
             .subscribe(object : Subscriber<File>() {
                 override fun onCompleted() {
                 }
@@ -193,7 +196,7 @@ object H5CacheManager {
                 override fun onError(e: Throwable?) {
                     e?.printStackTrace()
                     // clear the flag because of failed
-                    SharedPreferenceUtil.put(context, SP_H5_CACHE_VERSION_CODE, -1)
+                    SharedPreferenceUtil.put(context, SP_H5_CACHE_VERSION_CODE, DEFAULT_VERSION_CODE)
                 }
 
                 override fun onNext(t: File?) {
@@ -228,7 +231,8 @@ object H5CacheManager {
                         cacheMapping[item.path] = item.md5
                     }
                 }
-            }.subscribe(object : Subscriber<Unit>() {
+            }
+            .subscribe(object : Subscriber<Unit>() {
                 override fun onNext(t: Unit?) {
                     SharedPreferenceUtil.put(context, SP_H5_CACHE_VERSION_CODE, versionCode)
                 }
@@ -237,7 +241,8 @@ object H5CacheManager {
                 }
 
                 override fun onError(e: Throwable?) {
-                    SharedPreferenceUtil.put(context, SP_H5_CACHE_VERSION_CODE, -1)
+                    e?.printStackTrace()
+                    SharedPreferenceUtil.put(context, SP_H5_CACHE_VERSION_CODE, DEFAULT_VERSION_CODE)
                 }
             })
     }
