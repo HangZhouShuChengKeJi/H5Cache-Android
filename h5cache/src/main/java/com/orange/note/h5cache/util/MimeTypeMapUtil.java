@@ -3,13 +3,22 @@ package com.orange.note.h5cache.util;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author maomao
  * @date 2019-07-12
  */
 public class MimeTypeMapUtil {
 
-    public static String getFileExtensionFromUrl(String url) {
+    private static Map<String, String> mineMap = new HashMap<String, String>() {
+        {
+            put("js", "application/javascript");
+        }
+    };
+
+    private static String getFileExtensionFromUrl(String url) {
         url = url.toLowerCase();
         if (!TextUtils.isEmpty(url)) {
             int fragment = url.lastIndexOf('#');
@@ -38,10 +47,15 @@ public class MimeTypeMapUtil {
 
         return "";
     }
+
     public static String getMimeTypeFromUrl(String url) {
-        return  MimeTypeMap.getSingleton().getMimeTypeFromExtension(getFileExtensionFromUrl(url));
+        return getMimeTypeFromExtension(getFileExtensionFromUrl(url));
     }
-    public static String getMimeTypeFromExtension(String extension) {
+
+    private static String getMimeTypeFromExtension(String extension) {
+        if (mineMap.containsKey(extension)) {
+            return mineMap.get(extension);
+        }
         return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
     }
 }

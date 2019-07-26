@@ -55,9 +55,6 @@ object H5CacheInterceptor {
         }
 
         val mimeType = MimeTypeMapUtil.getMimeTypeFromUrl(url) ?: ""
-        if (TextUtils.isEmpty(mimeType)) {
-            return null
-        }
         val webResourceResponse = WebResourceResponse(mimeType, "", file.inputStream())
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
