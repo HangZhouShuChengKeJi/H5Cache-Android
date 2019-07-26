@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'maven'
 
 android {
     compileSdkVersion 28
@@ -42,4 +43,43 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+
+//打包源代码
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.srcDirs
+}
+
+artifacts {
+    archives sourcesJar
+}
+
+uploadArchives {
+
+    def username = ""
+    def password = ""
+
+    if (project.rootProject.file('local.properties').exists()) {
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file('local.properties').newDataInputStream())
+        username = properties.getProperty("maven.username")
+        password = properties.getProperty("maven.password")
+    }
+
+    repositories {
+        mavenDeployer {
+            snapshotRepository(url: 'http://maven.91chengguo.com/repository/maven-snapshots/') {
+                authentication(userName: username, password: password)
+            }
+            repository(url: 'http://maven.91chengguo.com/repository/maven-releases/') {
+                authentication(userName: username, password: password)
+            }
+            pom.packaging = 'aar'
+            pom.version = "1.0.0"
+            pom.groupId = 'com.orange.note'
+            pom.artifactId = "h5cache"
+        }
+    }
+
 }

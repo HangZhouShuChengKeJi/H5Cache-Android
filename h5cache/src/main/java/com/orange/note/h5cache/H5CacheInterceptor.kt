@@ -46,7 +46,7 @@ object H5CacheInterceptor {
         }
         path = "$path?v=$md5"
         val file = File(H5CacheManager.cachePathDir + path)
-        if (!file.isFile || !file.exists()) {
+        if (!file.exists() || !file.isFile) {
             return null
         }
         val fileMd5 = MD5Util.md5(file) ?: ""

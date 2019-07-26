@@ -106,8 +106,8 @@ object H5CacheManager {
                         }
                         return@inner H5CacheTask.download(item.url!!)
                             .map { body ->
-                                val uri = URI(item.url!!)
-                                val path = item.url!!.replace("${uri.scheme}://${uri.host}", "")
+                                val uri = URI(item.url)
+                                val path = item.url.replace("${uri.scheme}://${uri.host}", "")
                                 return@map FileUtil.saveFile(body.byteStream(), cachePathDir + path)
                             }
                             .map { newFile ->
