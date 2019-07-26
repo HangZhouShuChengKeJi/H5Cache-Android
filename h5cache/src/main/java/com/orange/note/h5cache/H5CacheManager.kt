@@ -14,6 +14,7 @@ import java.net.URI
 import java.net.URLDecoder
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
+import java.util.concurrent.CountDownLatch
 
 /**
  * H5静态资源文件缓存管理器
@@ -58,6 +59,8 @@ object H5CacheManager {
      */
     internal var cacheMapping: ConcurrentMap<String, String> = ConcurrentHashMap()
 
+    private val countDownLatch: CountDownLatch = CountDownLatch(2)
+
     /**
      * init, please called in application.onCreate()
      */
@@ -71,8 +74,11 @@ object H5CacheManager {
         // 第一次打开或者版本升级/降级
         if (versionCode == DEFAULT_VERSION_CODE || currentVersionCode != versionCode) {
             unZipFromAssets(context)
+        } else {
+            countDownLatch.countDown()
         }
         readMappingFile(context, currentVersionCode)
+        countDownLatch.await()
     }
 
     /**
@@ -189,12 +195,16 @@ object H5CacheManager {
             }
             .subscribe(object : Subscriber<File>() {
                 override fun onCompleted() {
+                    unsubscribe()
+                    countDownLatch.countDown()
                 }
 
                 override fun onError(e: Throwable?) {
                     e?.printStackTrace()
                     // clear the flag because of failed
                     SharedPreferenceUtil.put(context, SP_H5_CACHE_VERSION_CODE, DEFAULT_VERSION_CODE)
+                    unsubscribe()
+                    countDownLatch.countDown()
                 }
 
                 override fun onNext(t: File?) {
@@ -236,11 +246,15 @@ object H5CacheManager {
                 }
 
                 override fun onCompleted() {
+                    unsubscribe()
+                    countDownLatch.countDown()
                 }
 
                 override fun onError(e: Throwable?) {
                     e?.printStackTrace()
                     SharedPreferenceUtil.put(context, SP_H5_CACHE_VERSION_CODE, DEFAULT_VERSION_CODE)
+                    unsubscribe()
+                    countDownLatch.countDown()
                 }
             })
     }
