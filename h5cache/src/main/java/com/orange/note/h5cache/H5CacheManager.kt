@@ -91,20 +91,39 @@ object H5CacheManager {
 
 
     /**
+     * 每五分钟检查一次资源文件更新
+     */
+    fun checkUpdateInterval() {
+        Observable.interval(0, 5 * 60, TimeUnit.SECONDS)
+            .subscribeOn(Schedulers.io())
+            .subscribe(object : Subscriber<Long>() {
+
+                override fun onNext(t: Long?) {
+                    checkUpdate()
+                }
+
+                override fun onCompleted() {
+                }
+
+                override fun onError(e: Throwable?) {
+                    e?.printStackTrace()
+                }
+
+            })
+    }
+
+
+    /**
      * check need or not update for h5 resource cache
      */
     fun checkUpdate() {
         if (isRunning) {
             return
         }
-        Observable
-            .interval(0, 5 * 60 , TimeUnit.SECONDS)
+        H5CacheTask.checkUpdate(version)
             .observeOn(Schedulers.io())
             .doOnSubscribe {
                 isRunning = true
-            }
-            .flatMap {
-                return@flatMap H5CacheTask.checkUpdate(version)
             }
             .filter {
                 return@filter it.needUpdate
@@ -162,6 +181,8 @@ object H5CacheManager {
                 }
 
                 override fun onCompleted() {
+                    isRunning = false
+                    unsubscribe()
                 }
 
                 override fun onError(e: Throwable?) {
@@ -179,6 +200,8 @@ object H5CacheManager {
                         val file = File(cachePathDir + File.separator + H5_CACHE_JSON)
                         file.writeText(URLDecoder.decode(json, "UTF-8"))
                     }
+                    isRunning = false
+                    unsubscribe()
                 }
 
             })
