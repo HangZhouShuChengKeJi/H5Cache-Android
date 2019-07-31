@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
                 return H5CacheInterceptor.shouldInterceptRequest(url) ?: super.shouldInterceptRequest(view, url)
             }
         }
-        webView.loadUrl("http://www.91chengguo.com/appPackage/lxlib.js")
+        webView.loadUrl("http://www.91chengguo.com/app-package/index.js")
     }
 
 }
