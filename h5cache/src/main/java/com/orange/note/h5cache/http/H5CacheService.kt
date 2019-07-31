@@ -1,7 +1,6 @@
 package com.orange.note.h5cache.http
 
 import com.orange.note.h5cache.entity.H5CacheResponse
-import com.orange.note.net.response.NetResponse
 import okhttp3.ResponseBody
 import retrofit2.http.*
 import rx.Observable
@@ -19,9 +18,8 @@ interface H5CacheService {
     @FormUrlEncoded
     @POST("/api/getJsonResult.do")
     fun checkUpdate(
-        @Field("version") code: String?,
-        @Field("service") service: String?
-    ): Observable<NetResponse<H5CacheResponse>>
+        @Field("version") code: String?
+    ): Observable<H5CacheResponse>
 
     /**
      * 下载文件

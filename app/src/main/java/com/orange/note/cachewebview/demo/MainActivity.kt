@@ -14,33 +14,22 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    companion object {
-        const val API_SERVICE = "com.orange.note.h5cache"
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         button.setOnClickListener {
-            H5CacheManager.checkUpdate(API_SERVICE)
+            H5CacheManager.checkUpdate()
         }
-        H5CacheInterceptor.addHostList("www.91chengguo.com")
-        val settings = webView.settings
-        settings.allowFileAccess = true
-        settings.allowContentAccess = true
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            settings.allowFileAccessFromFileURLs = true
-            settings.allowUniversalAccessFromFileURLs = true
-        }
+        H5CacheInterceptor.addHostSet("www.91chengguo.com")
         webView.webViewClient = object : WebViewClient() {
 
             @TargetApi(Build.VERSION_CODES.LOLLIPOP)
             override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest?): WebResourceResponse? {
-                return H5CacheInterceptor.shouldInterceptRequest(request?.url.toString())
+                return H5CacheInterceptor.shouldInterceptRequest(request?.url.toString()) ?: super.shouldInterceptRequest(view, request)
             }
 
             override fun shouldInterceptRequest(view: WebView?, url: String?): WebResourceResponse? {
-                return H5CacheInterceptor.shouldInterceptRequest(url)
+                return H5CacheInterceptor.shouldInterceptRequest(url) ?: super.shouldInterceptRequest(view, url)
             }
         }
         webView.loadUrl("http://www.91chengguo.com/appPackage/lxlib.js")

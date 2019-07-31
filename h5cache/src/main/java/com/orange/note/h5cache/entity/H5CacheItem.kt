@@ -23,5 +23,5 @@ data class H5CacheItem(
      * path 对应文件的 url
      * 比如 http://www.91chengguo.com/app/test/bridge.js
      */
-    val url: String?
+    val url: String? = null
 )

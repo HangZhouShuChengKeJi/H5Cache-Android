@@ -1,10 +1,10 @@
 package com.orange.note.h5cache.http
 
 import com.orange.note.h5cache.entity.H5CacheResponse
-import com.orange.note.net.NetService
-import com.orange.note.net.response.NetResponse
-import com.orange.note.net.rx.NetResponseTransformer
 import okhttp3.ResponseBody
+import retrofit2.Retrofit
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
+import retrofit2.converter.gson.GsonConverterFactory
 import rx.Observable
 
 /**
@@ -14,18 +14,23 @@ import rx.Observable
  */
 object H5CacheTask {
 
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("http://www.91chengguo.com")
+        .addConverterFactory(GsonConverterFactory.create())
+        .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+        .build()
+
     /**
      * 请求静态资源文件任务
      */
-    fun checkUpdate(version: String?, service: String?): Observable<H5CacheResponse> {
-        return NetService.create(
+    fun checkUpdate(version: String?): Observable<H5CacheResponse> {
+        return retrofit.create(
             H5CacheService::class.java
-        ).checkUpdate(version, service)
-            .compose(NetResponseTransformer<NetResponse<H5CacheResponse>, H5CacheResponse>())
+        ).checkUpdate(version)
     }
 
     fun download(url: String): Observable<ResponseBody> {
-        return NetService.create(
+        return retrofit.create(
             H5CacheService::class.java
         ).download(url)
     }

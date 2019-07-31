@@ -20,5 +20,5 @@ data class H5CacheResponse(
     /**
      * 线上所有的静态资源文件 H5 cache 集合
      */
-    val itemList: List<H5CacheItem>?
+    val resourceList: List<H5CacheItem>?
 )

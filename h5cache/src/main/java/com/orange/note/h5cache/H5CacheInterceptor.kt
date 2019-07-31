@@ -15,15 +15,15 @@ import java.net.URI
  */
 object H5CacheInterceptor {
 
-    private const val CODE_OK = 200
+    private const val CODE_200 = 200
     private const val MESSAGE_OK = "OK"
-    private val hostList = mutableListOf<String>()
+    private val hostSet = mutableSetOf<String>()
 
-    fun clearHostList() = hostList.clear()
+    fun clearHostSet() = hostSet.clear()
 
-    fun addHostList(host: String) = hostList.add(host)
+    fun addHostSet(host: String) = hostSet.add(host)
 
-    fun removeHostList(host: String) = hostList.remove(host)
+    fun removeHostSet(host: String) = hostSet.remove(host)
 
     /**
      * please called in WebViewClient shouldInterceptRequest
@@ -33,10 +33,10 @@ object H5CacheInterceptor {
             return null
         }
         val uri = URI(url!!)
-        if (!hostList.contains(uri.host)) {
+        if (!hostSet.contains(uri.host)) {
             return null
         }
-        var path = url.replace("${uri.scheme}://${uri.host}", "")
+        var path = uri.path
         if (!H5CacheManager.cacheMapping.containsKey(path)) {
             return null
         }
@@ -58,7 +58,7 @@ object H5CacheInterceptor {
         val webResourceResponse = WebResourceResponse(mimeType, "", file.inputStream())
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            webResourceResponse.setStatusCodeAndReasonPhrase(CODE_OK, MESSAGE_OK)
+            webResourceResponse.setStatusCodeAndReasonPhrase(CODE_200, MESSAGE_OK)
         }
         return webResourceResponse
     }
